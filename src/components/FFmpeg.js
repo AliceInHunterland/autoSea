@@ -9,10 +9,10 @@ import { createFFmpeg, fetchFile } from '@ffmpeg/ffmpeg';
 // import { InferenceSession, Tensor } from 'onnxruntime-web';
 // const ort = require('onnxruntime-react-native');
 // import onLoadImage from './ImagePrediction';
-import handleImage from './ImagePrediction';
+import handleImage, {getImageTensorFromPath} from './ImagePrediction';
 import {data as classes} from "./imagenet_classes.json";
 
-
+import fs from "fs";
 import { InferenceSession, Tensor } from "onnxruntime-web";
 
 
@@ -135,32 +135,18 @@ function FFmpeg({ args, inFilename, outFilename, mediaType }) {
 
     setVideoSrc(URL.createObjectURL(new Blob([data.buffer], { type: 'image/png' })));
 
-    var fileReader = new FileReader();
-    fileReader.readAsDataURL(new Blob([data.buffer]));
-    var img = document.getElementById("input-image");
-
-    var img2 = document.createElement('img'); // Используем HTMLImageElement
-    img2.src = dirName+'/'+listDir[4];
-    img2.alt = 'alt text';
-    document.body.appendChild(img2);
-
-    console.log(process.env.PUBLIC_URL);
-    const modelFile = `./static/js/my_classification.onnx`;
-    console.log("loading onnx model");
-    console.log(modelFile);
+    // var fileReader = new FileReader();
+    // fileReader.readAsDataURL(new Blob([data.buffer]));
+    const myImg = document.getElementById('input-image');
+     myImg.src = URL.createObjectURL(new Blob([data.buffer], { type: 'image/png' }));
+    // myImg.onload = () => handleImage(myImg);
+    var res =handleImage(myImg);//WTF PROMISE???????
+    // var res = run(myTensor);
+    console.log('aaaaaaaaaaaaaaaaaa',res);
+    console.log(res);
 
 
-    const session = await InferenceSession.create(modelFile,{executionProviders: ['wasm']});
-    const dataA = new Float32Array(187500);
-    const tensorA = new Tensor('float32', dataA, [1,3, 250, 250]);
 
-    const feeds = { input: tensorA};
-    try {
-      const results = await session.run(feeds);
-      console.log(results)
-    } catch (e) {
-      console.error(e);
-    }
 
 
   };
@@ -173,6 +159,8 @@ function FFmpeg({ args, inFilename, outFilename, mediaType }) {
         <Grid item>
           <img src={videoSrc} id="input-image"
                className="input-image img-fluid rounded mx-auto d-block" alt="Input image"></img>,
+          < handleImage />
+
 
         </Grid>
       )}

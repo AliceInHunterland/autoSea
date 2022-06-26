@@ -1,3 +1,6 @@
+import {InferenceSession, Tensor} from "onnxruntime-web";
+import * as Jimp from "jimp";
+import {useState} from "react";
 
 
 const ort = require("onnxruntime-web");
@@ -25,9 +28,9 @@ let isRunning = false;
 
 
 
+
 const canvas = document.createElement("canvas"),
     ctx = canvas.getContext("2d");
-
 
 // ======================================================================
 // Functions
@@ -43,15 +46,20 @@ function onLoadImage(fileReader) {
 }
 
 function handleImage(img) {
+    const canvasImg = document.createElement('img');
+    canvasImg.setAttribute("id", "canvas-image");
+
+    const inputImg = document.createElement('img');
+    inputImg.setAttribute("id", "input-image");
+
     var targetWidth =  WIDTH;
     ctx.drawImage(img, 0, 0);
     const resizedImageData = processImage(img, targetWidth);
     const inputTensor = imageDataToTensor(resizedImageData, DIMS);
     var res = run(inputTensor);
-    return(
-        <img src="../images/salazar-snake.png" id="canvas-image"
-             className="input-image img-fluid rounded mx-auto d-block" alt="Input image"></img>
-    );
+    console.log(res);
+    return(res);
+
 }
 
 function processImage(img, width) {
@@ -62,7 +70,7 @@ function processImage(img, width) {
     canvas.height = canvas.width * (img.height / img.width);
     ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
 
-    document.getElementById("canvas-image").src = canvas.toDataURL();
+    // document.getElementById("canvas-image").src = canvas.toDataURL();
     return ctx.getImageData(0, 0, width, width).data;
 }
 
@@ -111,11 +119,26 @@ function argMax(arr) {
 
 async function run(inputTensor) {
     try {
-        const session = await ort.InferenceSession.create("./model.onnx");
+
+        const modelFile = `./static/js/my_classification.onnx`;
+        console.log("loading onnx model");
+        console.log(modelFile);
+
+
+        const session = await InferenceSession.create(modelFile,{executionProviders: ['wasm']});
+        // const dataA = new Float32Array(187500);
+        // const tensorA = new Tensor('float32', dataA, [1,3, 250, 250]);
+
+
+
         const feeds = { input: inputTensor };
 
         // feed inputs and run
-        const results = await session.run(feeds);
+
+            const results = await session.run(feeds);
+            console.log(results)
+
+
 
         const [maxValue, maxIndex] = argMax(results.output.data);
         console.log(results.output.data);
@@ -131,4 +154,6 @@ async function run(inputTensor) {
     }
 }
 // export default onLoadImage;
+
+
 export default handleImage;
