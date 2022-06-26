@@ -6,10 +6,41 @@ import Button from '@material-ui/core/Button';
 import Typography from '@material-ui/core/Typography';
 import { makeStyles } from '@material-ui/core/styles';
 import { createFFmpeg, fetchFile } from '@ffmpeg/ffmpeg';
-import onLoadImage from './ImagePrediction';
+// import { InferenceSession, Tensor } from 'onnxruntime-web';
+// const ort = require('onnxruntime-react-native');
+// import onLoadImage from './ImagePrediction';
+import handleImage from './ImagePrediction';
+import {data as classes} from "./imagenet_classes.json";
+
+
+import { InferenceSession } from "onnxruntime-web";
+
+
+import {
+  warmupModel,
+  getTensorFromCanvasContext,
+  setContextFromTensor,
+  tensorToCanvas,
+  canvasToTensor
+} from "./onnx/utils";
+import { Tensor } from "onnxjs";
+
+let inferenceSession;
+
+const MODEL_URL = "./model.onnx";
+const IMAGE_SIZE = 250;
+
+const loadModel = async () => {
+  inferenceSession = await new InferenceSession();
+  await inferenceSession.loadModel(MODEL_URL);
+  await warmupModel(inferenceSession, [1, 3, IMAGE_SIZE, IMAGE_SIZE]);
+};
+const dataA = new Float32Array(187500);
+// const tensorA = new Tensor('float32', dataA, [1,3, 250, 250]);
+console.log(loadModel)
+
 let ffmpeg = null;
 
-const ort = require("onnxruntime-web");
 
 const useStyles = makeStyles({
   root: {
@@ -109,23 +140,45 @@ function FFmpeg({ args, inFilename, outFilename, mediaType }) {
     const listDir = ffmpeg.FS("readdir", dirName);
       console.log(listDir);
     const data = ffmpeg.FS('readFile', dirName+'/'+listDir[4]);
-    var fileReader = new FileReader();
-    fileReader.readAsDataURL(new Blob([data.buffer]));
 
-    onLoadImage(fileReader)
 
 
     setVideoSrc(URL.createObjectURL(new Blob([data.buffer], { type: 'image/png' })));
 
+    var fileReader = new FileReader();
+    fileReader.readAsDataURL(new Blob([data.buffer]));
+    var img = document.getElementById("input-image");
 
+    var img2 = document.createElement('img'); // Используем HTMLImageElement
+    img2.src = dirName+'/'+listDir[4];
+    img2.alt = 'alt text';
+    document.body.appendChild(img2);
+    // inferenceSession = await new InferenceSession.create(MODEL_URL);
+    // await inferenceSession.loadModel(MODEL_URL);
+    const session = await InferenceSession.create('./model.onnx');
+    var dims = [1, 3, IMAGE_SIZE, IMAGE_SIZE];
+    const size = dims.reduce((a, b) => a * b);
+    const warmupTensor = new Tensor(new Float32Array(size), "float32", dims);
+
+    for (let i = 0; i < size; i++) {
+      warmupTensor.data[i] = Math.random() * 2.0 - 1.0; // random value [-1.0, 1.0)
+    }
+    const feeds = { input: warmupTensor};
+    try {
+      await inferenceSession.run(feeds);
+    } catch (e) {
+      console.error(e);
+    }
 
 
   };
   return (
+
+
+
     <Grid className={classes.root} container direction="column" alignItems="center" spacing={2}>
       {videoSrc.length === 0 ? null : (
         <Grid item>
-          <video src={videoSrc} autoPlay controls></video>,
           <img src={videoSrc} id="input-image"
                className="input-image img-fluid rounded mx-auto d-block" alt="Input image"></img>,
 
