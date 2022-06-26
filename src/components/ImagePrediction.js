@@ -1,4 +1,4 @@
-import FFmpeg from "./FFmpeg";
+
 
 const ort = require("onnxruntime-web");
 
@@ -49,7 +49,7 @@ function handleImage(img) {
     const inputTensor = imageDataToTensor(resizedImageData, DIMS);
     var res = run(inputTensor);
     return(
-        <img src="./src/images/salazar-snake.png" id="canvas-image"
+        <img src="../images/salazar-snake.png" id="canvas-image"
              className="input-image img-fluid rounded mx-auto d-block" alt="Input image"></img>
     );
 }
@@ -111,7 +111,7 @@ function argMax(arr) {
 
 async function run(inputTensor) {
     try {
-        const session = await ort.InferenceSession.create("src/assets/model.onnx");
+        const session = await ort.InferenceSession.create("./model.onnx");
         const feeds = { input: inputTensor };
 
         // feed inputs and run
@@ -130,4 +130,5 @@ async function run(inputTensor) {
         return(e);
     }
 }
-export default onLoadImage;
+// export default onLoadImage;
+export default handleImage;

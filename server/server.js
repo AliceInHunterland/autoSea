@@ -6,7 +6,7 @@ app.use((_, res, next) => {
   res.header('Cross-Origin-Embedder-Policy', 'require-corp');
   next();
 });
-
+express.static.mime.define({'application/wasm': ['wasm']});
 app.use(express.static('build'));
 
 const PORT = process.env.PORT || 8080;

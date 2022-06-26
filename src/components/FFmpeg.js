@@ -13,31 +13,21 @@ import handleImage from './ImagePrediction';
 import {data as classes} from "./imagenet_classes.json";
 
 
-import { InferenceSession } from "onnxruntime-web";
+import { InferenceSession, Tensor } from "onnxruntime-web";
 
 
-import {
-  warmupModel,
-  getTensorFromCanvasContext,
-  setContextFromTensor,
-  tensorToCanvas,
-  canvasToTensor
-} from "./onnx/utils";
-import { Tensor } from "onnxjs";
+// import {
+//   warmupModel,
+//   getTensorFromCanvasContext,
+//   setContextFromTensor,
+//   tensorToCanvas,
+//   canvasToTensor
+// } from "./onnx/utils";
 
 let inferenceSession;
 
 const MODEL_URL = "./model.onnx";
 const IMAGE_SIZE = 250;
-
-const loadModel = async () => {
-  inferenceSession = await new InferenceSession();
-  await inferenceSession.loadModel(MODEL_URL);
-  await warmupModel(inferenceSession, [1, 3, IMAGE_SIZE, IMAGE_SIZE]);
-};
-const dataA = new Float32Array(187500);
-// const tensorA = new Tensor('float32', dataA, [1,3, 250, 250]);
-console.log(loadModel)
 
 let ffmpeg = null;
 
@@ -153,19 +143,21 @@ function FFmpeg({ args, inFilename, outFilename, mediaType }) {
     img2.src = dirName+'/'+listDir[4];
     img2.alt = 'alt text';
     document.body.appendChild(img2);
-    // inferenceSession = await new InferenceSession.create(MODEL_URL);
-    // await inferenceSession.loadModel(MODEL_URL);
-    const session = await InferenceSession.create('./model.onnx');
-    var dims = [1, 3, IMAGE_SIZE, IMAGE_SIZE];
-    const size = dims.reduce((a, b) => a * b);
-    const warmupTensor = new Tensor(new Float32Array(size), "float32", dims);
 
-    for (let i = 0; i < size; i++) {
-      warmupTensor.data[i] = Math.random() * 2.0 - 1.0; // random value [-1.0, 1.0)
-    }
-    const feeds = { input: warmupTensor};
+    console.log(process.env.PUBLIC_URL);
+    const modelFile = `./static/js/my_classification.onnx`;
+    console.log("loading onnx model");
+    console.log(modelFile);
+
+
+    const session = await InferenceSession.create(modelFile,{executionProviders: ['wasm']});
+    const dataA = new Float32Array(187500);
+    const tensorA = new Tensor('float32', dataA, [1,3, 250, 250]);
+
+    const feeds = { input: tensorA};
     try {
-      await inferenceSession.run(feeds);
+      const results = await session.run(feeds);
+      console.log(results)
     } catch (e) {
       console.error(e);
     }
