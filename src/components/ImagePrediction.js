@@ -45,7 +45,7 @@ function onLoadImage(fileReader) {
     img.src = fileReader.result;
 }
 
-function handleImage(img) {
+async function handleImage(img) {
     const canvasImg = document.createElement('img');
     canvasImg.setAttribute("id", "canvas-image");
 
