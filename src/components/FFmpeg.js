@@ -26,8 +26,6 @@ import { InferenceSession, Tensor } from "onnxruntime-web";
 
 let inferenceSession;
 
-const MODEL_URL = "./model.onnx";
-const IMAGE_SIZE = 250;
 
 let ffmpeg = null;
 
@@ -108,8 +106,8 @@ function FFmpeg({ args, inFilename, outFilename, mediaType }) {
 
   const onFileUploaded = async ({ target: { files } }) => {
     const file = new Uint8Array(await readFromBlobOrFile(files[0]));
-      var today = Math.round((new Date()).getTime() / 1000);
-      var dirName = files[0]['name'].replace( '.', '_')+'_'+today.toString();
+    var today = Math.round((new Date()).getTime() / 1000);
+    var dirName = files[0]['name'].replace('.', '_') + '_' + today.toString();
 
     setMessage('Loading FFmpeg.wasm');
     if (!ffmpeg.isLoaded()) {
@@ -119,39 +117,39 @@ function FFmpeg({ args, inFilename, outFilename, mediaType }) {
     ffmpeg.FS('writeFile', files[0]['name'], await fetchFile(file));
     setMessage('Start to run command');
     const start = Date.now();
-    await ffmpeg.FS("mkdir",dirName);
+    await ffmpeg.FS("mkdir", dirName);
     var videoName = files[0]['name'];
-    await ffmpeg.run( '-i',videoName,'-vf','crop=in_w:in_h-200,scale=960:-1', '-r', '1', dirName+'/%04d.png' ,'-fflags', 'discardcorrupt');
+    await ffmpeg.run('-i', videoName, '-vf', 'crop=in_w:in_h-200,scale=960:-1', '-r', '1', dirName + '/%04d.png', '-fflags', 'discardcorrupt');
 
     setMessage(`Done in ${Date.now() - start} ms`);
 
     const listDir1 = ffmpeg.FS("readdir", '.');
     console.log(listDir1);
     const listDir = ffmpeg.FS("readdir", dirName);
-      console.log(listDir);
-
-    // for (let i = 2; i < listDir.length; i++) {
+    console.log(listDir);
 
 
-    const data = ffmpeg.FS('readFile', dirName+'/'+listDir[4]);
+    for (let i = 2; i < listDir.length; i++) {
 
 
+    const data = ffmpeg.FS('readFile', dirName + '/' + listDir[i]);
 
-    setVideoSrc(URL.createObjectURL(new Blob([data.buffer], { type: 'image/png' })));
+
+    setVideoSrc(URL.createObjectURL(new Blob([data.buffer], {type: 'image/png'})));
 
     // var fileReader = new FileReader();
     // fileReader.readAsDataURL(new Blob([data.buffer]));
     const myImg = document.getElementById('input-image');
-     myImg.src = URL.createObjectURL(new Blob([data.buffer], { type: 'image/png' }));
-     myImg.onload = () => handleImage(myImg);
-    // var res =await handleImage(myImg);//WTF PROMISE??????? сделать нормально а то ломается
-    // var res = run(myTensor);
-    // console.log('aaaaaaaaaaaaaaaaaa',res);
+    myImg.src = URL.createObjectURL(new Blob([data.buffer], {type: 'image/png'}));
+    // console.log(myImg);
+   // myImg.onload = async () => await handleImage(myImg);
+     var res = await handleImage(myImg);//WTF PROMISE???????
+    // // var res = run(myTensor);
+    console.log('aaaaaaaaaaaaaaaaaa', res);
     // console.log(res);
 
-    // }
 
-
+  };
 
   };
   return (
