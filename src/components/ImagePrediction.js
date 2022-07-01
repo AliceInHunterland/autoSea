@@ -46,20 +46,47 @@ function onLoadImage(fileReader) {
 }
 
 async function handleImage(img) {
-    const canvasImg = document.createElement('img');
-    canvasImg.setAttribute("id", "canvas-image");
-
-    const inputImg = document.createElement('img');
-    inputImg.setAttribute("id", "input-image");
+    // const img = document.getElementById('input-image');
 
     var targetWidth =  WIDTH;
     ctx.drawImage(img, 0, 0);
+    console.log("IMAGE BEFORE",ctx.getImageData(0, 0,WIDTH,WIDTH).data)
     const resizedImageData = processImage(img, targetWidth);
+    console.log("IMAGE",resizedImageData)
+
     const inputTensor = imageDataToTensor(resizedImageData, DIMS);
+    console.log('TENSOR',inputTensor)
     var res = run(inputTensor);
     console.log(res);
     return(res);
 
+}
+// function processImage(img, width) {
+//     const canvas = document.createElement("canvas"),
+//         ctx = canvas.getContext("2d");
+//
+//     canvas.width = width;
+//     canvas.height = canvas.width * (img.height / img.width);
+//
+//     getBlob(img.src).then((blob) => {
+//         const reader = new FileReader();
+//         reader.readAsDataURL(blob);
+//         reader.onloadend = function () {
+//             const base64String = reader.result;
+//             const image = new Image();
+//             image.onload = () => {
+//                 ctx.drawImage(image, 0, 0, canvas.width, canvas.height);
+//                 // console.log('!!!resizedImageDataimageimage', image);
+//                 // console.log('!!!resizedImageData', canvas.toDataURL());
+//                 return ctx.getImageData(0, 0, width, width).data;
+//             }
+//             image.src = base64String;
+//         }
+//     });
+// }
+
+async function getBlob(url) {
+    return await fetch(url).then(r => r.blob());
 }
 
 function processImage(img, width) {
@@ -70,6 +97,9 @@ function processImage(img, width) {
     canvas.height = canvas.width * (img.height / img.width);
     ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
 
+    const image = new Image();
+    image.onload=()=>ctx.drawImage(image,0,0,canvas.width, canvas.height);
+    // image.src= URL.createObjectURL(img.src);
     // document.getElementById("canvas-image").src = canvas.toDataURL();
     return ctx.getImageData(0, 0, width, width).data;
 }

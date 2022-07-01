@@ -1,30 +1,13 @@
-import React, { useState, useEffect } from 'react';
+import React, {useEffect, useState} from 'react';
 import Grid from '@material-ui/core/Grid';
 import CircularProgress from '@material-ui/core/CircularProgress';
 import Box from '@material-ui/core/Box';
 import Button from '@material-ui/core/Button';
 import Typography from '@material-ui/core/Typography';
-import { makeStyles } from '@material-ui/core/styles';
-import { createFFmpeg, fetchFile } from '@ffmpeg/ffmpeg';
-// import { InferenceSession, Tensor } from 'onnxruntime-web';
-// const ort = require('onnxruntime-react-native');
-// import onLoadImage from './ImagePrediction';
-import handleImage, {getImageTensorFromPath} from './ImagePrediction';
-import {data as classes} from "./imagenet_classes.json";
+import {makeStyles} from '@material-ui/core/styles';
+import {createFFmpeg, fetchFile} from '@ffmpeg/ffmpeg';
 
-import fs from "fs";
-import { InferenceSession, Tensor } from "onnxruntime-web";
-
-
-// import {
-//   warmupModel,
-//   getTensorFromCanvasContext,
-//   setContextFromTensor,
-//   tensorToCanvas,
-//   canvasToTensor
-// } from "./onnx/utils";
-
-let inferenceSession;
+import handleImage from './ImagePrediction';
 
 
 let ffmpeg = null;
@@ -128,30 +111,80 @@ function FFmpeg({ args, inFilename, outFilename, mediaType }) {
     const listDir = ffmpeg.FS("readdir", dirName);
     console.log(listDir);
 
+    var arr =[];
 
     for (let i = 2; i < listDir.length; i++) {
 
 
     const data = ffmpeg.FS('readFile', dirName + '/' + listDir[i]);
+    arr.push(data.buffer);
+    }
+
+        console.log(arr);
 
 
-    setVideoSrc(URL.createObjectURL(new Blob([data.buffer], {type: 'image/png'})));
 
-    // var fileReader = new FileReader();
-    // fileReader.readAsDataURL(new Blob([data.buffer]));
-    const myImg = document.getElementById('input-image');
-    myImg.src = URL.createObjectURL(new Blob([data.buffer], {type: 'image/png'}));
-    // console.log(myImg);
-   // myImg.onload = async () => await handleImage(myImg);
-     var res = await handleImage(myImg);//WTF PROMISE???????
+
+    const promises = arr.map(async fruit => {
+
+              await setVideoSrc(URL.createObjectURL(new Blob([fruit], {type: 'image/png'})));
+
+              const myImg =await document.getElementById('input-image');
+              myImg.src = await document.getElementById('input-image').src;
+              console.log('HERE');
+        console.log('myImg',myImg);
+          // myImg.onload = async () => {
+            const res = await handleImage(myImg);
+            console.log('aaaaaaaaaaaaaaaaaa', res);
+              return res
+          // }
+
+          })
+
+          const numFruits = await Promise.all(promises);
+          console.log(numFruits);
+
+          console.log('End')
+
+
+
+        //
+        // setVideoSrc(URL.createObjectURL(new Blob([fruit], {type: 'image/png'})));
+        // const myImg = document.getElementById('input-image');
+        // myImg.src = document.getElementById('input-image').src;//URL.createObjectURL(new Blob([data.buffer], {type: 'image/png'}));
+        // console.log('myImg', myImg);
+        //
+        // myImg.onload = async () => {
+        //   const res = await handleImage(myImg);
+        //   console.log('aaaaaaaaaaaaaaaaaa', res);
+        //   return res
+        // }
+
+
+        // const numFruit = await getNumFruit(fruit)
+        // return numFruit
+
+
+
+    // setVideoSrc(URL.createObjectURL(new Blob([arr[i]], {type: 'image/png'})));
+    //
+    // const myImg = document.getElementById('input-image');
+    // myImg.src =document.getElementById('input-image').src;//URL.createObjectURL(new Blob([data.buffer], {type: 'image/png'}));
+    // console.log('myImg',myImg);
+    //   myImg.onload = async () => {
+    //     const res = await handleImage(myImg);
+    //     console.log('aaaaaaaaaaaaaaaaaa', res);
+    //   }
+
+     // var res = await handleImage(myImg);//WTF PROMISE???????
     // // var res = run(myTensor);
-    console.log('aaaaaaaaaaaaaaaaaa', res);
+    // console.log('aaaaaaaaaaaaaaaaaa', res);
     // console.log(res);
 
 
-  };
 
-  };
+
+  }
   return (
 
 
@@ -160,7 +193,7 @@ function FFmpeg({ args, inFilename, outFilename, mediaType }) {
       {videoSrc.length === 0 ? null : (
         <Grid item>
           <img src={videoSrc} id="input-image"
-               className="input-image img-fluid rounded mx-auto d-block" alt="Input image"></img>,
+               className="input-image img-fluid rounded mx-auto d-block" alt="Input image" ></img>,
           < handleImage />
 
 
