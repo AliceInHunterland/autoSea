@@ -6,7 +6,7 @@ import Button from '@material-ui/core/Button';
 import Typography from '@material-ui/core/Typography';
 import {makeStyles} from '@material-ui/core/styles';
 import {createFFmpeg, fetchFile} from '@ffmpeg/ffmpeg';
-
+import ExcelJS from 'exceljs';
 import handleImage from './ImagePrediction';
 
 
@@ -123,17 +123,20 @@ function FFmpeg({ args, inFilename, outFilename, mediaType }) {
         console.log(arr);
 
 
-
-
+      // const myImg = new Image();
+   // const myImg =document.getElementById('input-image');
     const promises = arr.map(async fruit => {
-
-              await setVideoSrc(URL.createObjectURL(new Blob([fruit], {type: 'image/png'})));
-
+//var f = URL.createObjectURL(new Blob([fruit], {type: 'image/png'}));
+              setVideoSrc(URL.createObjectURL(new Blob([fruit], {type: 'image/png'})));
+            //console.log(f);
               const myImg =await document.getElementById('input-image');
               myImg.src = await document.getElementById('input-image').src;
+        // myImg.src = videoSrc;
+
               console.log('HERE');
         console.log('myImg',myImg);
           // myImg.onload = async () => {
+
             const res = await handleImage(myImg);
             console.log('aaaaaaaaaaaaaaaaaa', res);
               return res
@@ -145,6 +148,13 @@ function FFmpeg({ args, inFilename, outFilename, mediaType }) {
           console.log(numFruits);
 
           console.log('End')
+
+      const workbook = new ExcelJS.Workbook();
+      const worksheet = workbook.addWorksheet('My Sheet');
+      const newCol3Values = [1,2,3,4,5];
+      const newCol4Values = ['one', 'two', 'three', 'four', 'five'];
+      worksheet.spliceColumns(3, 1, newCol3Values, newCol4Values);
+
 
 
 

@@ -47,7 +47,8 @@ function onLoadImage(fileReader) {
 
 async function handleImage(img) {
     // const img = document.getElementById('input-image');
-
+    // var img = document.getElementById("input-image");
+    // img.src =img1;// URL.createObjectURL(new Blob([img1], {type: 'image/png'}))
     var targetWidth =  WIDTH;
     ctx.drawImage(img, 0, 0);
     console.log("IMAGE BEFORE",ctx.getImageData(0, 0,WIDTH,WIDTH).data)
