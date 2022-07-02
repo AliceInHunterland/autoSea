@@ -56,6 +56,9 @@ function CircularProgressWithLabel(props) {
     </Box>
   );
 }
+function sleep(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
 
 function FFmpeg({ args, inFilename, outFilename, mediaType }) {
   const classes = useStyles();
@@ -125,16 +128,48 @@ function FFmpeg({ args, inFilename, outFilename, mediaType }) {
 
       // const myImg = new Image();
    // const myImg =document.getElementById('input-image');
+      var numFruits = [];
+      for (let i = 0; i < arr.length; i++) {
+          var jopa = arr[i];
+          //setVideoSrc(URL.createObjectURL(new Blob([fruit], {type: 'image/png'})));
+          //console.log(f);
+          const myImg = document.getElementById('input-image');
+
+          // myImg.src = videoSrc;
+          var done = false;
+          var res = "";
+          myImg.onload = () => {
+
+              res = handleImage(myImg);
+              done = true;
+          }
+
+          myImg.src = URL.createObjectURL(new Blob([jopa], {type: 'image/png'}));
+          while(!done){
+              await sleep(10);
+              res = await res;
+          }
+
+          console.log('HERE');
+          //console.log('myImg',myImg);
+          // myImg.onload = async () => {
+
+
+          //const res = await handleImage(myImg);
+          numFruits.push(await res);
+          console.log('aaaaaaaaaaaaaaaaaa', res);
+      }
+      /*
     const promises = arr.map(async fruit => {
 //var f = URL.createObjectURL(new Blob([fruit], {type: 'image/png'}));
               setVideoSrc(URL.createObjectURL(new Blob([fruit], {type: 'image/png'})));
             //console.log(f);
-              const myImg =await document.getElementById('input-image');
-              myImg.src = await document.getElementById('input-image').src;
+              const myImg = document.getElementById('input-image');
+              myImg.src = URL.createObjectURL(new Blob([fruit], {type: 'image/png'}));
         // myImg.src = videoSrc;
 
               console.log('HERE');
-        console.log('myImg',myImg);
+       console.log('myImg',myImg);
           // myImg.onload = async () => {
 
             const res = await handleImage(myImg);
@@ -144,7 +179,9 @@ function FFmpeg({ args, inFilename, outFilename, mediaType }) {
 
           })
 
-          const numFruits = await Promise.all(promises);
+       */
+
+          //const numFruits = await Promise.all(promises);
           console.log(numFruits);
 
           console.log('End')
@@ -202,8 +239,7 @@ function FFmpeg({ args, inFilename, outFilename, mediaType }) {
     <Grid className={classes.root} container direction="column" alignItems="center" spacing={2}>
       {videoSrc.length === 0 ? null : (
         <Grid item>
-          <img src={videoSrc} id="input-image"
-               className="input-image img-fluid rounded mx-auto d-block" alt="Input image" ></img>,
+         ,
           < handleImage />
 
 

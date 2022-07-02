@@ -45,7 +45,7 @@ function onLoadImage(fileReader) {
     img.src = fileReader.result;
 }
 
-async function handleImage(img) {
+function handleImage(img) {
     // const img = document.getElementById('input-image');
     // var img = document.getElementById("input-image");
     // img.src =img1;// URL.createObjectURL(new Blob([img1], {type: 'image/png'}))
@@ -146,7 +146,30 @@ function argMax(arr) {
 
 
 
+class SingletonAiModelSession {
 
+    constructor() {
+
+        const modelFile = `./static/js/my_classification.onnx`;
+        console.log("loading onnx model");
+        console.log(modelFile);
+
+        this.session = (async () => {
+            return (await InferenceSession.create(modelFile,{executionProviders: ['wasm']}));
+        })();
+        SingletonAiModelSession.instance=this;
+    }
+
+    static async getInstance() {
+        if (!SingletonAiModelSession.instance) {
+            SingletonAiModelSession.instance=new SingletonAiModelSession();
+            console.log('I9N876543456789876543456789',SingletonAiModelSession.instance.session);
+            SingletonAiModelSession.instance.session = await SingletonAiModelSession.instance.session;
+            console.log('99999999999',SingletonAiModelSession.instance.session);
+        }
+        return SingletonAiModelSession.instance.session;
+    }
+}
 
 async function run(inputTensor) {
     try {
@@ -156,7 +179,7 @@ async function run(inputTensor) {
         console.log(modelFile);
 
 
-        const session = await InferenceSession.create(modelFile,{executionProviders: ['wasm']});
+        const session =await SingletonAiModelSession.getInstance();
         // const dataA = new Float32Array(187500);
         // const tensorA = new Tensor('float32', dataA, [1,3, 250, 250]);
 
