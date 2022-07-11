@@ -75,10 +75,15 @@ function Demo() {
     <Grid className={classes.root} container direction="column" >
       <Typography align="center" variant="h4">
         Demo
+
+        <br></br>
+        <br></br>
+        <img src="./static/js/pngegg.png" id="input-image"  align="center"
+             className="input-image img-fluid rounded mx-auto d-block" alt="Input image" ></img>
       </Typography>
-      <Typography className={classes.para} align="center" variant="h6">
-        Try ffmpeg.wasm now!
-      </Typography>
+
+
+
       {
         !IS_COMPATIBLE ? (
           <>
@@ -97,28 +102,8 @@ function Demo() {
               )}
             >
               <LivePreview />
-              <Grid container justify="space-between" alignItems="flex-end">
-                <Grid item>
-                  <Typography>
-                    Edit the code block below to test your scenario (<Link href={TESTDATA_URL} target="_blank" rel="noopener" color="secondary">Download Sample Video/Audio</Link>):
-                  </Typography>
-                </Grid>
-                <Grid item>
-                  <InputLabel id="config-select-label">Choose a sample config</InputLabel>
-                  <Select
-                    labelId="config-select-label"
-                    id="config-select"
-                    value={config}
-                    onChange={onConfigChanged}
-                  >
-                    <MenuItem value="x264">x264 (mp4)</MenuItem>
-                    <MenuItem value="libvpx">libvpx (webm)</MenuItem>
-                    <MenuItem value="lame">lame (mp3)</MenuItem>
-                  </Select>
-                </Grid>
-              </Grid>
-              <LiveEditor style={{ fontSize: 18, marginTop: 8 }}/>
-              <LiveError />
+
+
             </LiveProvider>
           </>
         )

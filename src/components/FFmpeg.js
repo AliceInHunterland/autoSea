@@ -6,12 +6,101 @@ import Button from '@material-ui/core/Button';
 import Typography from '@material-ui/core/Typography';
 import {makeStyles} from '@material-ui/core/styles';
 import {createFFmpeg, fetchFile} from '@ffmpeg/ffmpeg';
-import ExcelJS from 'exceljs';
+import * as ExcelJS from "exceljs";
 import handleImage from './ImagePrediction';
-
+import ExcelExampleExport from "./ExcelExampleExport";
+import {saveAs} from "file-saver";
+import { Renderer } from "xlsx-renderer";
 
 let ffmpeg = null;
+const temp = {
+    'Time':'0',
+    'Anthozoa':'0',
+    'Ascidia':'0',
+    'Ascophyllum':'0',
+    'Asterias':'0',
+    'Balanus':'0',
+    'Branchiomma':'0',
+    'Buccinum':'0',
+    'Caridea':'0',
+    'Chionoecetes':'0',
+    'Cnidaria':'0',
+    'Crossaster':'0',
+    'Cryptonatica':'0',
+    'Diopedos bispinis':'0',
+    'Fish':'0',
+    'Fucus':'0',
+    'Gersemia fruticosa':'0',
+    'Gorgonocephalus':'0',
+    'Gymnocanthus tricuspis':'0',
+    'Heliometra':'0',
+    'Hormathia':'0',
+    'Human':'0',
+    'Hyas':'0',
+    'Laminaria_digitata':'0',
+    'Lithothamnion':'0',
+    'Mysis oculata':'0',
+    'Ophiopholis':'0',
+    'Ophiura robusta':'0',
+    'Pagurus pubescens':'0',
+    'Porifera':'0',
+    'Strongylocentrotus':'0',
+    'Trash':'0',
+    'Urasterias':'0',
+    'Urticina':'0',
+    'arenicola':'0',
+    'corophiidae':'0',
+    'none':'0'
 
+};
+
+const worksheets = [
+    {
+        name: "Requests",
+        columns: [
+            {label: 'time', value: 'Time'},
+            {label: 'Anthozoa', value: 'Anthozoa'},
+            {label: 'Ascidia', value: 'Ascidia'},
+            {label:  'Ascophyllum', value:  'Ascophyllum'},
+            {label: 'Asterias', value: 'Asterias'},
+            {label: 'Balanus', value: 'Balanus'},
+            {label: 'Branchiomma', value: 'Branchiomma'},
+            {label: 'Buccinum', value: 'Buccinum'},
+            {label: 'Caridea', value: 'Caridea'},
+            {label: 'Chionoecetes', value: 'Chionoecetes'},
+            {label: 'Cnidaria', value: 'Cnidaria'},
+            {label: 'Crossaster', value: 'Crossaster'},
+            {label: 'Cryptonatica', value: 'Cryptonatica'},
+            {label: 'Diopedos bispinis', value: 'Diopedos bispinis'},
+            {label: 'Fish', value: 'Fish'},
+            {label: 'Fucus', value: 'Fucus'},
+            {label: 'Gersemia fruticosa', value: 'Gersemia fruticosa'},
+            {label: 'Gorgonocephalus', value: 'Gorgonocephalus'},
+            {label:   'Gymnocanthus tricuspis', value:   'Gymnocanthus tricuspis'},
+            {label: 'Heliometra', value: 'Heliometra'},
+            {label: 'Hormathia', value: 'Hormathia'},
+            {label: 'Human', value: 'Human'},
+            {label: 'Hyas', value: 'Hyas'},
+            {label: 'Laminaria_digitata', value: 'Laminaria_digitata'},
+            {label: 'Lithothamnion', value: 'Lithothamnion'},
+            {label: 'Mysis oculata', value: 'Mysis oculata'},
+            {label: 'Ophiopholis', value: 'Ophiopholis'},
+            {label: 'Ophiura robusta', value: 'Ophiura robusta'},
+            {label:  'Pagurus pubescens', value:  'Pagurus pubescens'},
+            {label: 'Porifera', value: 'Porifera'},
+            {label: 'Strongylocentrotus', value: 'Strongylocentrotus'},
+            {label: 'Trash', value: 'Trash'},
+            {label: 'Urasterias', value: 'Urasterias'},
+            {label: 'Urticina', value: 'Urticina'},
+            {label: 'arenicola', value: 'arenicola'},
+            {label:  'corophiidae', value:  'corophiidae'},
+            {label: 'none', value: 'none'}
+        ],
+        data: [
+
+        ]
+    }
+];
 
 const useStyles = makeStyles({
   root: {
@@ -21,6 +110,7 @@ const useStyles = makeStyles({
     width: '100%',
   },
 });
+
 
 const readFromBlobOrFile = (blob) => (
   new Promise((resolve, reject) => {
@@ -65,6 +155,8 @@ function FFmpeg({ args, inFilename, outFilename, mediaType }) {
   const [videoSrc, setVideoSrc] = useState('');
   const [progress, setProgress] = useState(0);
   const [message, setMessage] = useState('');
+
+
   useEffect(() => {
     if (ffmpeg === null) {
       ffmpeg = createFFmpeg({
@@ -89,8 +181,159 @@ function FFmpeg({ args, inFilename, outFilename, mediaType }) {
   });
 
 
+    async function exTest(filename = 'kkk', results = ['one','two','three']){
+        // async function onRetrieveTemplate() {
+        //     return fetch("./export.xlsx").then((r) => r.blob());
+        // }
+
+        // async function generateReport() {
+        //     return onRetrieveTemplate().then((xlsxBlob) => {
+        //         const reader = new FileReader();
+        //         reader.readAsArrayBuffer(xlsxBlob);
+        //         reader.addEventListener("loadend", async (e) => {
+        //             const renderer = new Renderer();
+        //             const workbook = new ExcelJS.Workbook();
+        //             const viewModel = { /* data */ };
+        //
+        //             const result = await renderer.render(() => {
+        //                 return workbook.xlsx.load(reader.result).catch();
+        //             }, viewModel);
+        //
+        //             // await result.xlsx.writeBuffer()
+        //             //     .then((buffer) => saveAs(new Blob([buffer]), `${Date.now()}_result_report.xlsx`))
+        //             //     .catch((err) => console.log("Error writing excel export", err));
+        //         });
+        //     });
+        // }
+
+
+        // const resp = await fetch('report-template.xlsx');
+        // const buf = await resp.arrayBuffer();
+        // const wb = new Excel.Workbook();
+        // const workbook = wb.xlsx.load(buf);
+        // console.log(workbook);
+
+
+        const workbook = new ExcelJS.Workbook();
+        const worksheet = workbook.addWorksheet("My Sheet");
+        // worksheet.getCell('A1').value = 'Широта'
+        // worksheet.getCell('B1').value = 'Долгота'
+        // worksheet.getCell('C1').value = 'Дата'
+        // worksheet.getCell('D1').value = 'Судно'
+        // worksheet.getCell('E1').value = 'Тип аппарата'
+        // worksheet.getCell('F1').value = 'Номер станции'
+        // worksheet.getCell('G1').value = 'Оператор'
+        // worksheet.getCell('H1').value = 'Расшифровали'
+        // worksheet.getCell('I1').value = 'Видеофайл'
+        // worksheet.getCell('J1').value = 'Качество и скорость съемки'
+        // worksheet.getCell('K1').value = 'Макрорельеф'
+
+        function padTo2Digits(num) {
+            return num.toString().padStart(2, '0');
+        }
+
+        function formatDate(date) {
+            return [
+                padTo2Digits(date.getDate()),
+                padTo2Digits(date.getMonth() + 1),
+                date.getFullYear(),
+            ].join('/');
+        }
+        var date = formatDate(new Date());
+
+        worksheet.getRow(1).values = ['Широта','Долгота','Дата','Судно','Тип аппарата','Номер станции','Оператор','Расшифровали','Видеофайл','Качество и скорость съемки','Макрорельеф']
+        worksheet.getRow(2).values = ['','',date, '', '', '', '', 'BioGeoHab',filename, '', '']
+
+        let colm = ['t начала',	't фрагмента',	'Компасный курс (град)',	'Глубина м',	'Субстрат',	'Примечания']
+
+       let colmKey = [
+            { key: 't0'},
+            { key: 't1'},
+            { key: 'degree'},
+            { key: 'depth'},
+            {key: 'sub'},
+            {key: 'addition'}
+        ];
+
+        let unique = [...new Set(results)];
+        for (let i = 0; i < unique.length; i++) {
+            colm.push( unique[i] );
+            colmKey.push({key:unique[i]});
+        }
+        worksheet.getRow(4).values = colm;
+
+        console.log('MY COLM',colm);
+        worksheet.columns = colmKey;
+        console.log(worksheet.columns);
+        let t0 = 0;
+        for (let i = 0; i < results.length; i++) {
+            let r =results[i];
+            worksheet.addRow({t0: t0.toString(), t1: (t0+10).toString(), [r]:'1' });
+            // console.log({t0: t0.toString(), t1: (t0+1).toString(), [r]:'1' });
+            t0+=10;
+
+        }
+
+
+        // save under export.xlsx
+
+
+        const buffer = await workbook.xlsx.writeBuffer();
+        const fileType = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
+        const fileExtension = '.xlsx';
+
+        const blob = new Blob([buffer], {type: fileType});
+
+        // saveAs(blob, 'export' + fileExtension);
+
+
+
+//UPLOADING FILE
+//load a copy of export.xlsx
+//         const reader = new FileReader();
+//         const resp = await fetch('./export.xlsx');
+//         const buf = await resp.blob();//resp.arrayBuffer();
+//
+//         await reader.readAsArrayBuffer(buf);
+//         console.log(buf);
+//         const newWorkbook = new ExcelJS.Workbook();
+//         await newWorkbook.xlsx.load(reader.result).catch();
+
+        // console.log(newWorkbook);
+
+
+        const newworksheet = workbook.getWorksheet('My Sheet');
+        console.log(newworksheet.columns)
+        // const cell = worksheet.getCell('C3');
+        //
+        // cell.value = 666
+
+
+        const buffer2 = await workbook.xlsx.writeBuffer();
+
+
+
+        const blob2 = new Blob([buffer2], {type: fileType});
+
+         saveAs(blob2, 'export2' + fileExtension);
+
+        console.log("File is written");
+
+    }
+
+
+
 
   const onFileUploaded = async ({ target: { files } }) => {
+
+
+
+
+
+
+      console.log("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAdone")
+
+
     const file = new Uint8Array(await readFromBlobOrFile(files[0]));
     var today = Math.round((new Date()).getTime() / 1000);
     var dirName = files[0]['name'].replace('.', '_') + '_' + today.toString();
@@ -105,9 +348,9 @@ function FFmpeg({ args, inFilename, outFilename, mediaType }) {
     const start = Date.now();
     await ffmpeg.FS("mkdir", dirName);
     var videoName = files[0]['name'];
-    await ffmpeg.run('-i', videoName, '-vf', 'crop=in_w:in_h-200,scale=960:-1', '-r', '1', dirName + '/%04d.png', '-fflags', 'discardcorrupt');
+    await ffmpeg.run('-i', videoName, '-vf', 'crop=in_w:in_h-200,scale=960:-1', '-r', '0.1', dirName + '/%04d.png', '-fflags', 'discardcorrupt');
 
-    setMessage(`Done in ${Date.now() - start} ms`);
+
 
     const listDir1 = ffmpeg.FS("readdir", '.');
     console.log(listDir1);
@@ -131,11 +374,9 @@ function FFmpeg({ args, inFilename, outFilename, mediaType }) {
       var numFruits = [];
       for (let i = 0; i < arr.length; i++) {
           var jopa = arr[i];
-          //setVideoSrc(URL.createObjectURL(new Blob([fruit], {type: 'image/png'})));
-          //console.log(f);
+ 
           const myImg = document.getElementById('input-image');
 
-          // myImg.src = videoSrc;
           var done = false;
           var res = "";
           myImg.onload = () => {
@@ -150,83 +391,62 @@ function FFmpeg({ args, inFilename, outFilename, mediaType }) {
               res = await res;
           }
 
-          console.log('HERE');
-          //console.log('myImg',myImg);
-          // myImg.onload = async () => {
 
-
-          //const res = await handleImage(myImg);
           numFruits.push(await res);
+          setMessage(`Predicted for ${i} frames from ${arr.length} `);
+          console.log('HERE');
           console.log('aaaaaaaaaaaaaaaaaa', res);
       }
-      /*
-    const promises = arr.map(async fruit => {
-//var f = URL.createObjectURL(new Blob([fruit], {type: 'image/png'}));
-              setVideoSrc(URL.createObjectURL(new Blob([fruit], {type: 'image/png'})));
-            //console.log(f);
-              const myImg = document.getElementById('input-image');
-              myImg.src = URL.createObjectURL(new Blob([fruit], {type: 'image/png'}));
-        // myImg.src = videoSrc;
 
-              console.log('HERE');
-       console.log('myImg',myImg);
-          // myImg.onload = async () => {
 
-            const res = await handleImage(myImg);
-            console.log('aaaaaaaaaaaaaaaaaa', res);
-              return res
-          // }
 
-          })
-
-       */
-
-          //const numFruits = await Promise.all(promises);
           console.log(numFruits);
 
+      //FOR KEPLER
+      //add uploading file
+      //add push row
+      // for (let i = 0; i < numFruits.length; i++) {
+      //
+      //     console.log(worksheets[0]["data"][0]);
+      //     var val = Number(worksheets[0].data[0][numFruits[i]]);
+      //     console.log(val);
+      //
+      //     worksheets[0]["data"][0][numFruits[i]] = (val+1).toString() ;
+      //
+      // }
+
+
+      // FOR PEN
+
+
+      //   console.log(temp);
+      // for (var i = 0; i < numFruits.length; i++) {
+      //     var copy = {...temp};
+      //     worksheets[0].data.push(copy);
+      //
+      //     console.log(worksheets[0].data);
+      //     console.log(worksheets[0].data[i].Time);
+      //
+      //     worksheets[0].data[i][numFruits[i]] = '1' ;
+      //     worksheets[0].data[i].Time = i.toString();
+      //     console.log("76543", i.toString())
+      //
+      // }
+      //
+      //
+      // console.log(worksheets);
+
+      await exTest( files[0]['name'],numFruits);
+      setMessage(`Done in ${Date.now() - start} ms`);
           console.log('End')
 
-      const workbook = new ExcelJS.Workbook();
-      const worksheet = workbook.addWorksheet('My Sheet');
-      const newCol3Values = [1,2,3,4,5];
-      const newCol4Values = ['one', 'two', 'three', 'four', 'five'];
-      worksheet.spliceColumns(3, 1, newCol3Values, newCol4Values);
 
 
 
 
-        //
-        // setVideoSrc(URL.createObjectURL(new Blob([fruit], {type: 'image/png'})));
-        // const myImg = document.getElementById('input-image');
-        // myImg.src = document.getElementById('input-image').src;//URL.createObjectURL(new Blob([data.buffer], {type: 'image/png'}));
-        // console.log('myImg', myImg);
-        //
-        // myImg.onload = async () => {
-        //   const res = await handleImage(myImg);
-        //   console.log('aaaaaaaaaaaaaaaaaa', res);
-        //   return res
-        // }
-
-
-        // const numFruit = await getNumFruit(fruit)
-        // return numFruit
 
 
 
-    // setVideoSrc(URL.createObjectURL(new Blob([arr[i]], {type: 'image/png'})));
-    //
-    // const myImg = document.getElementById('input-image');
-    // myImg.src =document.getElementById('input-image').src;//URL.createObjectURL(new Blob([data.buffer], {type: 'image/png'}));
-    // console.log('myImg',myImg);
-    //   myImg.onload = async () => {
-    //     const res = await handleImage(myImg);
-    //     console.log('aaaaaaaaaaaaaaaaaa', res);
-    //   }
-
-     // var res = await handleImage(myImg);//WTF PROMISE???????
-    // // var res = run(myTensor);
-    // console.log('aaaaaaaaaaaaaaaaaa', res);
-    // console.log(res);
 
 
 
@@ -239,9 +459,9 @@ function FFmpeg({ args, inFilename, outFilename, mediaType }) {
     <Grid className={classes.root} container direction="column" alignItems="center" spacing={2}>
       {videoSrc.length === 0 ? null : (
         <Grid item>
-         ,
-          < handleImage />
 
+
+            < handleImage />
 
         </Grid>
       )}
@@ -258,24 +478,24 @@ function FFmpeg({ args, inFilename, outFilename, mediaType }) {
             component="label"
             color="secondary"
           >
-            Upload a Video/Audio File
+            Upload a Video File
             <input
               type="file"
               style={{ display: 'none' }}
               onChange={onFileUploaded}
             />
           </Button>
+
         )}
       </Grid>
       <Grid item>
-        <Typography align="center">
-          {`$ ffmpeg ${args.join(' ')}`}
-        </Typography>
+
       </Grid>
       <Grid item>
         <Typography align="center">
           {message}
         </Typography>
+
       </Grid>
     </Grid>
   );

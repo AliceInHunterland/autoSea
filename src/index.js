@@ -5,6 +5,7 @@ import { ThemeProvider } from '@material-ui/core/styles';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
 import theme from './theme';
+import { createTheme } from '@material-ui/core/styles'
 
 ReactDOM.render(
   <ThemeProvider theme={theme}>
