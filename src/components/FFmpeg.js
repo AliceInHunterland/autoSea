@@ -10,7 +10,7 @@ import * as ExcelJS from "exceljs";
 import handleImage from './ImagePrediction';
 
 import {saveAs} from "file-saver";
-import { Renderer } from "xlsx-renderer";
+
 
 let ffmpeg = null;
 const temp = {

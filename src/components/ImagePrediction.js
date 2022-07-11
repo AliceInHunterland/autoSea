@@ -15,7 +15,10 @@ const DIMS = [1, 3, WIDTH, WIDTH];
 const MAX_LENGTH = DIMS[0] * DIMS[1] * DIMS[2] * DIMS[3];
 const MAX_SIGNED_VALUE = 255.0;
 const classes = require("./imagenet_classes.json").data;
-
+const numColsToCut = 2;
+const numRowsToCut = 2;
+const widthOfOnePiece = 250;
+const heightOfOnePiece = 250;
 
 let predictedClass;
 let isRunning = false;
@@ -68,10 +71,7 @@ async function getBlob(url) {
 
 //
 function processImage(img, width) {
-    var numColsToCut = 3;
-    var numRowsToCut = 3;
-    var widthOfOnePiece = 250;
-    var heightOfOnePiece = 250;
+
     var imagePieces = [];
     for(var x = 0; x < numColsToCut; ++x) {
         for(var y = 0; y < numRowsToCut; ++y) {
@@ -93,7 +93,7 @@ function processImage(img, width) {
 //     canvas.width = width;
 //     canvas.height = canvas.width * (img.height / img.width);
 //     ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-//     return ctx.getImageData(0, 0, width, width).data;
+//     return [ctx.getImageData(0, 0, width, width).data];
 // }
 
 function imageDataToTensor(data, dims) {
