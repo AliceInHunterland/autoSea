@@ -8,7 +8,7 @@ import {makeStyles} from '@material-ui/core/styles';
 import {createFFmpeg, fetchFile} from '@ffmpeg/ffmpeg';
 import * as ExcelJS from "exceljs";
 import handleImage from './ImagePrediction';
-import ExcelExampleExport from "./ExcelExampleExport";
+
 import {saveAs} from "file-saver";
 import { Renderer } from "xlsx-renderer";
 
@@ -181,7 +181,13 @@ function FFmpeg({ args, inFilename, outFilename, mediaType }) {
   });
 
 
-    async function exTest(filename = 'kkk', results = ['one','two','three']){
+    async function exTest(filename = 'kkk', results = [['one','two','three'],['two','two','three'],['three','three']])
+
+
+    {
+
+
+
         // async function onRetrieveTemplate() {
         //     return fetch("./export.xlsx").then((r) => r.blob());
         // }
@@ -216,17 +222,7 @@ function FFmpeg({ args, inFilename, outFilename, mediaType }) {
 
         const workbook = new ExcelJS.Workbook();
         const worksheet = workbook.addWorksheet("My Sheet");
-        // worksheet.getCell('A1').value = 'Широта'
-        // worksheet.getCell('B1').value = 'Долгота'
-        // worksheet.getCell('C1').value = 'Дата'
-        // worksheet.getCell('D1').value = 'Судно'
-        // worksheet.getCell('E1').value = 'Тип аппарата'
-        // worksheet.getCell('F1').value = 'Номер станции'
-        // worksheet.getCell('G1').value = 'Оператор'
-        // worksheet.getCell('H1').value = 'Расшифровали'
-        // worksheet.getCell('I1').value = 'Видеофайл'
-        // worksheet.getCell('J1').value = 'Качество и скорость съемки'
-        // worksheet.getCell('K1').value = 'Макрорельеф'
+
 
         function padTo2Digits(num) {
             return num.toString().padStart(2, '0');
@@ -255,7 +251,8 @@ function FFmpeg({ args, inFilename, outFilename, mediaType }) {
             {key: 'addition'}
         ];
 
-        let unique = [...new Set(results)];
+        var merged = [].concat.apply([], results);
+        let unique = [...new Set(merged)];
         for (let i = 0; i < unique.length; i++) {
             colm.push( unique[i] );
             colmKey.push({key:unique[i]});
@@ -265,12 +262,30 @@ function FFmpeg({ args, inFilename, outFilename, mediaType }) {
         console.log('MY COLM',colm);
         worksheet.columns = colmKey;
         console.log(worksheet.columns);
+
         let t0 = 0;
-        for (let i = 0; i < results.length; i++) {
-            let r =results[i];
-            worksheet.addRow({t0: t0.toString(), t1: (t0+10).toString(), [r]:'1' });
-            // console.log({t0: t0.toString(), t1: (t0+1).toString(), [r]:'1' });
-            t0+=10;
+
+        for(let i=0;i<results.length;i++){
+            const oneRow = results[i];
+
+            const count = {};
+            console.log(oneRow);
+
+
+        oneRow.forEach(element => {
+                count[element] = (count[element] || 0) + 1;
+            });
+
+
+        var newRow = {t0: t0.toString(), t1: (t0+10).toString() };
+            for (let x in count) {
+                newRow[x] =count[x].toString()
+            }
+
+
+            console.log(newRow);
+            worksheet.addRow(newRow);
+            t0=t0+10;
 
         }
 
@@ -329,12 +344,7 @@ function FFmpeg({ args, inFilename, outFilename, mediaType }) {
 
 
 
-
-
-      console.log("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAdone")
-
-
-    const file = new Uint8Array(await readFromBlobOrFile(files[0]));
+      const file = new Uint8Array(await readFromBlobOrFile(files[0]));
     var today = Math.round((new Date()).getTime() / 1000);
     var dirName = files[0]['name'].replace('.', '_') + '_' + today.toString();
 
@@ -366,13 +376,11 @@ function FFmpeg({ args, inFilename, outFilename, mediaType }) {
     arr.push(data.buffer);
     }
 
-        console.log(arr);
-
-
-      // const myImg = new Image();
-   // const myImg =document.getElementById('input-image');
+      console.log(arr);
       var numFruits = [];
       for (let i = 0; i < arr.length; i++) {
+
+
           var jopa = arr[i];
  
           const myImg = document.getElementById('input-image');
@@ -389,64 +397,31 @@ function FFmpeg({ args, inFilename, outFilename, mediaType }) {
           while(!done){
               await sleep(10);
               res = await res;
-          }
+          };
 
 
-          numFruits.push(await res);
+          numFruits.push(res);
           setMessage(`Predicted for ${i} frames from ${arr.length} `);
           console.log('HERE');
           console.log('aaaaaaaaaaaaaaaaaa', res);
       }
+      // var merged = [].concat.apply([], numFruits);
+
+      const promise4all = Promise.all(
+
+          numFruits.map(function(innerPromiseArray) {
+              return Promise.all(innerPromiseArray);
+          })
 
 
-
-          console.log(numFruits);
-
-      //FOR KEPLER
-      //add uploading file
-      //add push row
-      // for (let i = 0; i < numFruits.length; i++) {
-      //
-      //     console.log(worksheets[0]["data"][0]);
-      //     var val = Number(worksheets[0].data[0][numFruits[i]]);
-      //     console.log(val);
-      //
-      //     worksheets[0]["data"][0][numFruits[i]] = (val+1).toString() ;
-      //
-      // }
-
-
-      // FOR PEN
-
-
-      //   console.log(temp);
-      // for (var i = 0; i < numFruits.length; i++) {
-      //     var copy = {...temp};
-      //     worksheets[0].data.push(copy);
-      //
-      //     console.log(worksheets[0].data);
-      //     console.log(worksheets[0].data[i].Time);
-      //
-      //     worksheets[0].data[i][numFruits[i]] = '1' ;
-      //     worksheets[0].data[i].Time = i.toString();
-      //     console.log("76543", i.toString())
-      //
-      // }
-      //
-      //
-      // console.log(worksheets);
-
-      await exTest( files[0]['name'],numFruits);
-      setMessage(`Done in ${Date.now() - start} ms`);
+      );
+      console.log('promise4all',promise4all);
+      promise4all.then(function(promiseGroupResult) {
+          exTest( files[0]['name'],promiseGroupResult);
+          setMessage(`Done in ${Date.now() - start} ms`);
+          console.log("numFruits",numFruits);
           console.log('End')
-
-
-
-
-
-
-
-
+      });
 
 
 

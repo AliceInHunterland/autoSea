@@ -37,73 +37,64 @@ const canvas = document.createElement("canvas"),
 // ======================================================================
 
 
-function onLoadImage(fileReader) {
 
-    var img = document.getElementById("input-image");
-    console.log(img);
-    img.onload = () => handleImage(img);
-    img.src = fileReader.result;
-}
 
 function handleImage(img) {
-    // const img = document.getElementById('input-image');
-    // var img = document.getElementById("input-image");
-    // img.src =img1;// URL.createObjectURL(new Blob([img1], {type: 'image/png'}))
+
     var targetWidth =  WIDTH;
     ctx.drawImage(img, 0, 0);
     console.log("IMAGE BEFORE",ctx.getImageData(0, 0,WIDTH,WIDTH).data)
-    const resizedImageData = processImage(img, targetWidth);
-    console.log("IMAGE",resizedImageData)
+    const resizedImageDataArray = processImage(img, targetWidth);
+    const results =[];
+    for (let i =0; i<resizedImageDataArray.length; i++){
+    console.log("IMAGE",resizedImageDataArray[i])
 
-    const inputTensor = imageDataToTensor(resizedImageData, DIMS);
+    const inputTensor = imageDataToTensor(resizedImageDataArray[i], DIMS);
     console.log('TENSOR',inputTensor)
-    var res = run(inputTensor);
-    console.log(res);
-    return(res);
+    var oneRes = run(inputTensor);
+
+    console.log("One piece result ",oneRes);
+
+    results.push(oneRes);
+    }
+
+    return(results);
 
 }
+
+async function getBlob(url) {
+    return await fetch(url).then(r => r.blob());
+}
+
+//
+function processImage(img, width) {
+    var numColsToCut = 3;
+    var numRowsToCut = 3;
+    var widthOfOnePiece = 250;
+    var heightOfOnePiece = 250;
+    var imagePieces = [];
+    for(var x = 0; x < numColsToCut; ++x) {
+        for(var y = 0; y < numRowsToCut; ++y) {
+            const canvas = document.createElement("canvas"),
+                ctx = canvas.getContext("2d");
+            canvas.width = widthOfOnePiece;
+            canvas.height = heightOfOnePiece;
+            ctx.drawImage(img, x * widthOfOnePiece, y * heightOfOnePiece, widthOfOnePiece, heightOfOnePiece, 0, 0, canvas.width, canvas.height);
+            imagePieces.push(ctx.getImageData(0, 0, width, width).data);
+        }}
+
+    return imagePieces;}
+
+
 // function processImage(img, width) {
 //     const canvas = document.createElement("canvas"),
 //         ctx = canvas.getContext("2d");
 //
 //     canvas.width = width;
 //     canvas.height = canvas.width * (img.height / img.width);
-//
-//     getBlob(img.src).then((blob) => {
-//         const reader = new FileReader();
-//         reader.readAsDataURL(blob);
-//         reader.onloadend = function () {
-//             const base64String = reader.result;
-//             const image = new Image();
-//             image.onload = () => {
-//                 ctx.drawImage(image, 0, 0, canvas.width, canvas.height);
-//                 // console.log('!!!resizedImageDataimageimage', image);
-//                 // console.log('!!!resizedImageData', canvas.toDataURL());
-//                 return ctx.getImageData(0, 0, width, width).data;
-//             }
-//             image.src = base64String;
-//         }
-//     });
+//     ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+//     return ctx.getImageData(0, 0, width, width).data;
 // }
-
-async function getBlob(url) {
-    return await fetch(url).then(r => r.blob());
-}
-
-function processImage(img, width) {
-    const canvas = document.createElement("canvas"),
-        ctx = canvas.getContext("2d");
-
-    canvas.width = width;
-    canvas.height = canvas.width * (img.height / img.width);
-    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-
-    const image = new Image();
-    image.onload=()=>ctx.drawImage(image,0,0,canvas.width, canvas.height);
-    // image.src= URL.createObjectURL(img.src);
-    // document.getElementById("canvas-image").src = canvas.toDataURL();
-    return ctx.getImageData(0, 0, width, width).data;
-}
 
 function imageDataToTensor(data, dims) {
     // 1. filter out alpha
