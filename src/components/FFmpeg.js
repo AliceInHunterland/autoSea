@@ -8,99 +8,12 @@ import {makeStyles} from '@material-ui/core/styles';
 import {createFFmpeg, fetchFile} from '@ffmpeg/ffmpeg';
 import * as ExcelJS from "exceljs";
 import handleImage from './ImagePrediction';
-
+import Tesseract from 'tesseract.js';
 import {saveAs} from "file-saver";
 
 
 let ffmpeg = null;
-const temp = {
-    'Time':'0',
-    'Anthozoa':'0',
-    'Ascidia':'0',
-    'Ascophyllum':'0',
-    'Asterias':'0',
-    'Balanus':'0',
-    'Branchiomma':'0',
-    'Buccinum':'0',
-    'Caridea':'0',
-    'Chionoecetes':'0',
-    'Cnidaria':'0',
-    'Crossaster':'0',
-    'Cryptonatica':'0',
-    'Diopedos bispinis':'0',
-    'Fish':'0',
-    'Fucus':'0',
-    'Gersemia fruticosa':'0',
-    'Gorgonocephalus':'0',
-    'Gymnocanthus tricuspis':'0',
-    'Heliometra':'0',
-    'Hormathia':'0',
-    'Human':'0',
-    'Hyas':'0',
-    'Laminaria_digitata':'0',
-    'Lithothamnion':'0',
-    'Mysis oculata':'0',
-    'Ophiopholis':'0',
-    'Ophiura robusta':'0',
-    'Pagurus pubescens':'0',
-    'Porifera':'0',
-    'Strongylocentrotus':'0',
-    'Trash':'0',
-    'Urasterias':'0',
-    'Urticina':'0',
-    'arenicola':'0',
-    'corophiidae':'0',
-    'none':'0'
 
-};
-
-const worksheets = [
-    {
-        name: "Requests",
-        columns: [
-            {label: 'time', value: 'Time'},
-            {label: 'Anthozoa', value: 'Anthozoa'},
-            {label: 'Ascidia', value: 'Ascidia'},
-            {label:  'Ascophyllum', value:  'Ascophyllum'},
-            {label: 'Asterias', value: 'Asterias'},
-            {label: 'Balanus', value: 'Balanus'},
-            {label: 'Branchiomma', value: 'Branchiomma'},
-            {label: 'Buccinum', value: 'Buccinum'},
-            {label: 'Caridea', value: 'Caridea'},
-            {label: 'Chionoecetes', value: 'Chionoecetes'},
-            {label: 'Cnidaria', value: 'Cnidaria'},
-            {label: 'Crossaster', value: 'Crossaster'},
-            {label: 'Cryptonatica', value: 'Cryptonatica'},
-            {label: 'Diopedos bispinis', value: 'Diopedos bispinis'},
-            {label: 'Fish', value: 'Fish'},
-            {label: 'Fucus', value: 'Fucus'},
-            {label: 'Gersemia fruticosa', value: 'Gersemia fruticosa'},
-            {label: 'Gorgonocephalus', value: 'Gorgonocephalus'},
-            {label:   'Gymnocanthus tricuspis', value:   'Gymnocanthus tricuspis'},
-            {label: 'Heliometra', value: 'Heliometra'},
-            {label: 'Hormathia', value: 'Hormathia'},
-            {label: 'Human', value: 'Human'},
-            {label: 'Hyas', value: 'Hyas'},
-            {label: 'Laminaria_digitata', value: 'Laminaria_digitata'},
-            {label: 'Lithothamnion', value: 'Lithothamnion'},
-            {label: 'Mysis oculata', value: 'Mysis oculata'},
-            {label: 'Ophiopholis', value: 'Ophiopholis'},
-            {label: 'Ophiura robusta', value: 'Ophiura robusta'},
-            {label:  'Pagurus pubescens', value:  'Pagurus pubescens'},
-            {label: 'Porifera', value: 'Porifera'},
-            {label: 'Strongylocentrotus', value: 'Strongylocentrotus'},
-            {label: 'Trash', value: 'Trash'},
-            {label: 'Urasterias', value: 'Urasterias'},
-            {label: 'Urticina', value: 'Urticina'},
-            {label: 'arenicola', value: 'arenicola'},
-            {label:  'corophiidae', value:  'corophiidae'},
-            {label: 'none', value: 'none'}
-        ],
-        data: [
-
-        ]
-    }
-];
 
 const useStyles = makeStyles({
   root: {
@@ -150,6 +63,32 @@ function sleep(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
 }
 
+function GetPath(dataUrl){
+
+    Tesseract.recognize(
+        dataUrl,'eng',
+        {
+            logger: m => console.log(m)
+        }
+    )
+        .catch (err => {
+            console.error(err);
+        })
+        .then(result => {
+            // Get Confidence score
+            let confidence = result.confidence
+            // Get full output
+            let text = result.text
+            console.log("TEXT",text)
+            let myLat = text.slice(text.search('Lat'), text.length).split('\n')[0]
+            let myLon = text.slice(text.search('Lon'), text.length).split('\n')[0]
+            console.log(myLat)
+            console.log(myLon)
+        return[myLat,myLon]})
+}
+
+
+
 function FFmpeg({ args, inFilename, outFilename, mediaType }) {
   const classes = useStyles();
   const [videoSrc, setVideoSrc] = useState('');
@@ -161,8 +100,8 @@ function FFmpeg({ args, inFilename, outFilename, mediaType }) {
     if (ffmpeg === null) {
       ffmpeg = createFFmpeg({
         log: true,
-        corePath: './static/js/ffmpeg-core.js',
-        // corePath: 'https://unpkg.com/@ffmpeg/core@0.8.3/dist/ffmpeg-core.js',
+        // corePath: './static/js/ffmpeg-core.js',
+         corePath: 'https://unpkg.com/@ffmpeg/core@0.8.3/dist/ffmpeg-core.js',
       });
     }
     ffmpeg.setLogger(({ type, message }) => {
@@ -330,7 +269,7 @@ function FFmpeg({ args, inFilename, outFilename, mediaType }) {
 
         const blob2 = new Blob([buffer2], {type: fileType});
 
-         saveAs(blob2, 'export2' + fileExtension);
+         saveAs(blob2, 'export' + fileExtension);
 
         console.log("File is written");
 
@@ -358,8 +297,9 @@ function FFmpeg({ args, inFilename, outFilename, mediaType }) {
     const start = Date.now();
     await ffmpeg.FS("mkdir", dirName);
     var videoName = files[0]['name'];
-    await ffmpeg.run('-i', videoName, '-vf', 'crop=in_w:in_h-200,scale=960:-1', '-r', '0.1', dirName + '/%04d.png', '-fflags', 'discardcorrupt');
+    await ffmpeg.run('-i', videoName, '-r', '0.1', dirName + '/%04d.png', '-fflags', 'discardcorrupt');
 
+      // await ffmpeg.run('-i', videoName, '-vf', 'crop=in_w:in_h-200,scale=960:-1', '-r', '0.1', dirName + '/%04d.png', '-fflags', 'discardcorrupt');
 
 
     const listDir1 = ffmpeg.FS("readdir", '.');
@@ -387,22 +327,31 @@ function FFmpeg({ args, inFilename, outFilename, mediaType }) {
 
           var done = false;
           var res = "";
-          myImg.onload = () => {
+          let path = "";
+          let dataUrl =  URL.createObjectURL(new Blob([jopa], {type: 'image/png'}));
 
+          myImg.onload = () => {
               res = handleImage(myImg);
+              path =  GetPath(dataUrl);
               done = true;
           }
 
-          myImg.src = URL.createObjectURL(new Blob([jopa], {type: 'image/png'}));
+          myImg.src =dataUrl;
+          myImg.width = 250*4;
+          myImg.heith = 250*2;
           while(!done){
               await sleep(10);
               res = await res;
+              path = await path;
           };
 
 
+
+
+
           numFruits.push(res);
-          setMessage(`Predicted for ${i} frames from ${arr.length} `);
-          console.log('HERE');
+          setMessage(`Predicted for ${i} frames from ${arr.length}, ${path} `);
+          console.log(`HERE, ${path} `);
           console.log('aaaaaaaaaaaaaaaaaa', res);
       }
       // var merged = [].concat.apply([], numFruits);

@@ -42,35 +42,77 @@ const canvas = document.createElement("canvas"),
 
 
 
-function handleImage(img) {
+async function handleImage(img) {
 
-    var targetWidth =  WIDTH;
-    ctx.drawImage(img, 0, 0);
-    console.log("IMAGE BEFORE",ctx.getImageData(0, 0,WIDTH,WIDTH).data)
-    const resizedImageDataArray = processImage(img, targetWidth);
-    const results =[];
-    for (let i =0; i<resizedImageDataArray.length; i++){
-    console.log("IMAGE",resizedImageDataArray[i])
+    var cropX = 0;
+    var cropY = img.height / 6;
+    var cropWidth = img.width; // 250;
+    var cropHeight = img.height - img.height / 6; //150;
+console.log("WIDTH",img.width)
+    console.log("HEITH",img.height)
+    //resize our canvas to match the size of the cropped area
+    canvas.width = 250*4;
+    canvas.height = 250*2;
 
-    const inputTensor = imageDataToTensor(resizedImageDataArray[i], DIMS);
-    console.log('TENSOR',inputTensor)
-    var oneRes = run(inputTensor);
+    //fill canvas with cropped image
+    ctx.drawImage(
+        img,
+        cropX,
+        cropY,
+        cropWidth,
+        cropHeight,
+        0,
+        0,
+        250*4,
+        250*2
+    );
 
-    console.log("One piece result ",oneRes);
 
-    results.push(oneRes);
+    var targetWidth = WIDTH;
+    // ctx.drawImage(img, 0, 0);
+    console.log("IMAGE BEFORE", ctx.getImageData(0, 0, canvas.width, canvas.height).data)
+    const resizedImageDataArray = processImage(img,WIDTH);
+    const results = [];
+    for (let i = 0; i < resizedImageDataArray.length; i++) {
+        console.log("IMAGE", resizedImageDataArray[i])
+
+        const inputTensor = imageDataToTensor(resizedImageDataArray[i], DIMS);
+        console.log('TENSOR', inputTensor)
+        var oneRes = run(inputTensor);
+
+        console.log("One piece result ", oneRes);
+
+        results.push(oneRes);
     }
 
-    return(results);
+    return (results);
 
 }
 
-async function getBlob(url) {
-    return await fetch(url).then(r => r.blob());
-}
 
-//
-function processImage(img, width) {
+function processImage(img,width) {
+
+    // var imagePieces = [];
+    // for (var x = 0; x < numColsToCut; ++x) {
+    //     for (var y = 0; y < numRowsToCut; ++y) {
+    //         imagePieces.push(
+    //             context.getImageData(
+    //                 x * widthOfOnePiece,
+    //                 y * heightOfOnePiece,
+    //                 (x + 1) * widthOfOnePiece,
+    //                 (y + 1) * heightOfOnePiece
+    //             ).data
+    //         );
+    //
+    //         console.log("ONE PIECE DATA",
+    //             context.getImageData(
+    //                 x * widthOfOnePiece,
+    //                 y * heightOfOnePiece,
+    //                 (x + 1) * widthOfOnePiece,
+    //                 (y + 1) * heightOfOnePiece
+    //             ).data );
+    //     }
+    // }
 
     var imagePieces = [];
     for(var x = 0; x < numColsToCut; ++x) {
@@ -81,7 +123,9 @@ function processImage(img, width) {
             canvas.height = heightOfOnePiece;
             ctx.drawImage(img, x * widthOfOnePiece, y * heightOfOnePiece, widthOfOnePiece, heightOfOnePiece, 0, 0, canvas.width, canvas.height);
             imagePieces.push(ctx.getImageData(0, 0, width, width).data);
+            console.log(ctx.getImageData(0, 0, width, width).data)
         }}
+
 
     return imagePieces;}
 
