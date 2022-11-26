@@ -161,8 +161,8 @@ function FFmpeg({ args, inFilename, outFilename, mediaType }) {
     if (ffmpeg === null) {
       ffmpeg = createFFmpeg({
         log: true,
-        corePath: './static/js/ffmpeg-core.js',
-        // corePath: 'https://unpkg.com/@ffmpeg/core@0.8.3/dist/ffmpeg-core.js',
+       // corePath: './static/js/ffmpeg-core.js',
+         corePath: 'https://unpkg.com/@ffmpeg/core@0.8.3/dist/ffmpeg-core.js',
       });
     }
     ffmpeg.setLogger(({ type, message }) => {
