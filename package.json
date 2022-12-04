@@ -33,7 +33,6 @@
     "web-vitals": "^0.2.4"
   },
   "scripts": {
-    "homepage": "https://aliceinhunterland.github.io/autoSea",
     "predeploy": "npm run build",
     "deploy": "gh-pages -b main -d build",
     "start": "BROWSER=none react-app-rewired start",
