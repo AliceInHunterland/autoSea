@@ -1,0 +1,19 @@
+{
+  "files": {
+    "main.js": "/autoSea/static/js/main.fe5534ba.chunk.js",
+    "main.js.map": "/autoSea/static/js/main.fe5534ba.chunk.js.map",
+    "runtime-main.js": "/autoSea/static/js/runtime-main.2c915e06.js",
+    "runtime-main.js.map": "/autoSea/static/js/runtime-main.2c915e06.js.map",
+    "static/js/2.af4168d4.chunk.js": "/autoSea/static/js/2.af4168d4.chunk.js",
+    "static/js/2.af4168d4.chunk.js.map": "/autoSea/static/js/2.af4168d4.chunk.js.map",
+    "static/js/3.afafd5f1.chunk.js": "/autoSea/static/js/3.afafd5f1.chunk.js",
+    "static/js/3.afafd5f1.chunk.js.map": "/autoSea/static/js/3.afafd5f1.chunk.js.map",
+    "index.html": "/autoSea/index.html",
+    "static/js/2.af4168d4.chunk.js.LICENSE.txt": "/autoSea/static/js/2.af4168d4.chunk.js.LICENSE.txt"
+  },
+  "entrypoints": [
+    "static/js/runtime-main.2c915e06.js",
+    "static/js/2.af4168d4.chunk.js",
+    "static/js/main.fe5534ba.chunk.js"
+  ]
+}
