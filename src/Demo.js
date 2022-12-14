@@ -74,9 +74,9 @@ function Demo() {
   return (
     <Grid className={classes.root} container direction="column" >
       <Typography align="center" variant="h4">
-        Demo
 
-        <br></br>
+
+
         <br></br>
         <img src="./static/js/pngegg.png" id="input-image"  align="center"
              className="input-image img-fluid rounded mx-auto d-block" alt="Input image" ></img>

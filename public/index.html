@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <link rel="icon" href="%PUBLIC_URL%/favicon.ico" />
+    <link rel="icon" href="%PUBLIC_URL%/logo192.png" />
     <meta
       name="viewport"
       content="minimum-scale=1, initial-scale=1, width=device-width"
@@ -27,24 +27,32 @@
       work correctly both with client-side routing and a non-root public URL.
       Learn how to configure a non-root public URL by running `npm run build`.
     -->
-    <title>BIOGEOHUB</title>
+    <title>OpenSeaBiom</title>
 
     <!--
       Roboto font used by material-ui
     -->
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap" />
     <!-- Global site tag (gtag.js) - Google Analytics -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-GS4PD61KFM"></script>
-    <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
 
-      gtag('config', 'G-GS4PD61KFM');
-    </script>
   </head>
   <body>
     <noscript>You need to enable JavaScript to run this app.</noscript>
+    <h1 align="center"> Инструмент для создание отчета, соответствующего ГОСТу, по видеозаписи.  </h1>
+    <p class="text-center" > Подсчет обитателей дна северных морей произоводится по основным кадрам, которые не превышают критического значения зашумденности и смазанности. При наличие текстовой информации на кадре о широте и дологоте в формате: Lat: *** Lon: *** система с высокой вероятностью извлечет данную информацию.
+    </p><br></br>
+    <p class="text-center" >Входная видеопоследовательность должна быть в формате .avi, не превышать по длительности более 1 часа и содержать в себе только съемку акватории северных морей и не превышать 2Гб.
+    </p>
+    <p class="text-center" > Результатом работы инструмента является документ excel в котором содержится информация о наиболее вероятных объектах на каждом 10 секундном интервале видеозаписи. При успешном извлечении координат в левом верхнем углу будут заполнены данные о местоположении.
+    </p>
+    <p class="text-center" style="left: 110px;"> Для тестирования инструмента необходимо нажать на кнопку загрузки и выбрать файл для анализа. После завершения работы по формированию отчета документ начнет скачивание автоматически. </p>
+    <br></br>
+    <a href="%PUBLIC_URL%/example.avi" download><p style="text-align:center">Скачать демонстрационный пример</p>
+      <!--      <img src="/images/myw3schoolsimage.jpg" alt="W3Schools" width="104" height="142">-->
+    </a>
+
+
     <div id="root"></div>
     <!--
       This HTML file is a template.
